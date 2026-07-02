@@ -1,0 +1,71 @@
+server:
+  servlet:
+    context-path: /
+  # Limite de tamanio del cuerpo que el gateway acepta (ajustado para permitir
+  # multipart grande en /proxy/upload; el limite efectivo se controla tambien
+  # con proxy.max-upload-bytes y spring.servlet.multipart.*).
+  max-http-header-size: 32KB
+  tomcat:
+    max-swallow-size: 150MB
+    max-http-form-post-size: 150MB
+
+spring:
+  application:
+    name: proxy-gateway
+  # Jackson flexible: no romper si el servicio destino devuelve campos extra
+  jackson:
+    deserialization:
+      fail-on-unknown-properties: false
+  mvc:
+    throw-exception-if-no-handler-found: true
+  web:
+    resources:
+      add-mappings: false
+  # Multipart para /proxy/upload
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 100MB
+      max-request-size: 150MB
+      file-size-threshold: 2MB
+
+# ---------------------------------------------------------------
+# Configuracion especifica del gateway
+#
+# Puedes sobreescribir cualquier clave con una variable de entorno
+# (Spring Boot relaxed-binding). Ejemplos:
+#   PROXY_SHAREDSECRET=xxxx
+#   PROXY_ALLOWEDHOSTS_0=127.0.0.1:14005
+#   PROXY_ALLOWEDHOSTS_1=192.168.10.48:6708
+# ---------------------------------------------------------------
+proxy:
+  # En produccion SIEMPRE lista blanca. "*" permite todos (solo debug).
+  allowed-hosts:
+    - 127.0.0.1
+    - 127.0.0.1:8096
+    - localhost
+    - localhost:8096
+  connect-timeout-ms: 5000
+  read-timeout-ms: 30000
+  # Envoltorio JSON (/proxy/forward y /proxy/raw): se lee en memoria.
+  max-response-bytes: 10485760       # 10 MB
+  # Streaming binario (/proxy/stream): cota maxima antes de cortar la respuesta.
+  max-stream-bytes: 209715200        # 200 MB
+  # Multipart entrante (/proxy/upload): cota total de la peticion.
+  max-upload-bytes: 104857600        # 100 MB
+  shared-secret: ""                  # vacio -> sin autenticacion
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: never
+
+logging:
+  level:
+    root: INFO
+    com.aquarius.proxy: INFO
+    org.apache.http: WARN

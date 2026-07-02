@@ -1,0 +1,22 @@
+# Perfil de produccion. Se activa con:
+#   JAVA_OPTS="-Dspring.profiles.active=prod"  en setenv.bat de Tomcat
+#
+# Las claves sensibles deben venir de variables de entorno:
+#   PROXY_SHAREDSECRET=...
+#   PROXY_ALLOWEDHOSTS_0=127.0.0.1:14005
+#   PROXY_ALLOWEDHOSTS_1=192.168.10.48:6708
+#
+# Limites de streaming/upload (opcional, sobreescribe application.yml):
+#   PROXY_MAXRESPONSEBYTES=10485760      # 10 MB   - body JSON en /forward y /raw
+#   PROXY_MAXSTREAMBYTES=209715200       # 200 MB  - tope de /proxy/stream
+#   PROXY_MAXUPLOADBYTES=104857600       # 100 MB  - tope total de /proxy/upload
+proxy:
+  shared-secret: ${PROXY_SHAREDSECRET:}
+  allowed-hosts:
+    - 127.0.0.1
+    - localhost
+
+logging:
+  level:
+    com.aquarius.proxy: INFO
+    org.springframework.web: WARN
