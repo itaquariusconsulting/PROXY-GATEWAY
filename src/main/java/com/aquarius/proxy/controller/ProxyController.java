@@ -26,12 +26,16 @@ import java.util.Set;
 /**
  * Endpoints del gateway.
  *
+ * <p>Los endpoints cuelgan de la raiz del context de la app. Desplegado como
+ * WAR con nombre {@code proxy-gateway}, el context-path es {@code /proxy-gateway},
+ * por lo que las rutas publicas quedan {@code /proxy-gateway/forward}, etc.</p>
+ *
  * <ul>
- *   <li>GET  /proxy/ping      -> health simple.</li>
- *   <li>POST /proxy/forward   -> reenvia la peticion; devuelve {@link ProxyResponse} envuelto.</li>
- *   <li>POST /proxy/raw       -> igual que forward, pero propaga status y body tal cual.</li>
- *   <li>GET  /proxy/stream    -> streaming binario transparente (PDF, imagenes, descargas).</li>
- *   <li>POST /proxy/upload    -> reenvio multipart/form-data (subida de archivos).</li>
+ *   <li>GET  /ping      -> health simple.</li>
+ *   <li>POST /forward   -> reenvia la peticion; devuelve {@link ProxyResponse} envuelto.</li>
+ *   <li>POST /raw       -> igual que forward, pero propaga status y body tal cual.</li>
+ *   <li>GET  /stream    -> streaming binario transparente (PDF, imagenes, descargas).</li>
+ *   <li>POST /upload    -> reenvio multipart/form-data (subida de archivos).</li>
  * </ul>
  *
  * <p>Los endpoints binarios ({@code /stream}, {@code /upload}) reciben la URL
@@ -40,7 +44,6 @@ import java.util.Set;
  * {@code token}) se propagan al destino.</p>
  */
 @RestController
-@RequestMapping("/proxy")
 public class ProxyController {
 
     // Headers del cliente que NO reenviamos al destino (son del gateway o ruido).
