@@ -407,8 +407,15 @@ public class ProxyService {
         if (src.getHeaders() != null) {
             for (Map.Entry<String, String> e : src.getHeaders().entrySet()) {
                 if ("content-type".equalsIgnoreCase(e.getKey()) && e.getValue() != null) {
-                    try { return ContentType.parse(e.getValue()); }
-                    catch (Exception ignore) { /* fall-through */ }
+                    try {
+                        ContentType parsed = ContentType.parse(e.getValue());
+                        // Si el cliente no declaro charset, StringEntity caeria a
+                        // ISO-8859-1 y el backend (que lee UTF-8) fallaria al parsear
+                        // cualquier body con acentos. Forzamos UTF-8 en ese caso.
+                        return parsed.getCharset() != null
+                                ? parsed
+                                : parsed.withCharset(StandardCharsets.UTF_8);
+                    } catch (Exception ignore) { /* fall-through */ }
                 }
             }
         }
