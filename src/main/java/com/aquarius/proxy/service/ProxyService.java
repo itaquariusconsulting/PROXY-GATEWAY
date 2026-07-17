@@ -304,18 +304,25 @@ public class ProxyService {
     // Helpers compartidos
     // ========================================================================
 
-    private URI buildTargetUri(String url, Map<String, List<String>> params) {
+    private URI buildTargetUri(String url, Map<String, ?> params) {
         if (url == null || url.isBlank()) {
             throw new ProxyException(HttpStatus.BAD_REQUEST, "url destino es obligatorio");
         }
         try {
             URIBuilder b = new URIBuilder(url);
             if (params != null) {
-                for (Map.Entry<String, List<String>> e : params.entrySet()) {
+                for (Map.Entry<String, ?> e : params.entrySet()) {
                     String key = e.getKey();
-                    if (e.getValue() == null) continue;
-                    for (String v : e.getValue()) {
-                        b.addParameter(key, v);
+                    Object val = e.getValue();
+                    if (key == null || val == null) continue;
+                    // El valor puede venir como string simple (frontend: query={search:"x"})
+                    // o como lista multi-valor (params={k:["a","b"]}).
+                    if (val instanceof Iterable) {
+                        for (Object v : (Iterable<?>) val) {
+                            if (v != null) b.addParameter(key, String.valueOf(v));
+                        }
+                    } else {
+                        b.addParameter(key, String.valueOf(val));
                     }
                 }
             }

@@ -1,10 +1,10 @@
 package com.aquarius.proxy.dto;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.databind.JsonNode;
 
 import javax.validation.constraints.NotBlank;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -37,10 +37,12 @@ public class ProxyRequest {
     private Map<String, String> headers = new LinkedHashMap<>();
 
     /**
-     * Query params. Se aceptan valores simples (string) o listas (multi-valor).
+     * Query params. Se aceptan valores simples (string) o listas (multi-valor),
+     * y el campo llega tanto como "params" como "query" (el frontend usa "query").
      * Se codifican con URL-encoding al armar la peticion.
      */
-    private Map<String, List<String>> params = new LinkedHashMap<>();
+    @JsonAlias({"query"})
+    private Map<String, Object> params = new LinkedHashMap<>();
 
     /**
      * Body de la peticion. Se acepta cualquier JSON arbitrario (objeto,
@@ -60,8 +62,8 @@ public class ProxyRequest {
     public Map<String, String> getHeaders() { return headers; }
     public void setHeaders(Map<String, String> headers) { this.headers = headers; }
 
-    public Map<String, List<String>> getParams() { return params; }
-    public void setParams(Map<String, List<String>> params) { this.params = params; }
+    public Map<String, Object> getParams() { return params; }
+    public void setParams(Map<String, Object> params) { this.params = params; }
 
     public JsonNode getBody() { return body; }
     public void setBody(JsonNode body) { this.body = body; }
